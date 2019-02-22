@@ -1,14 +1,14 @@
 package dev.baofeng.com.supermovie.view.online.detail;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -18,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -33,6 +34,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.ctetin.expandabletextviewlibrary.ExpandableTextView;
 import com.google.gson.Gson;
+import com.youngfeng.snake.annotations.EnableDragToClose;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -43,7 +45,7 @@ import butterknife.ButterKnife;
 import dev.baofeng.com.supermovie.R;
 import dev.baofeng.com.supermovie.adapter.OnlineCategoryAdapter;
 import dev.baofeng.com.supermovie.adapter.OnlinePlayM3u8Adapter;
-import dev.baofeng.com.supermovie.adapter.OnlinePlayWebAdapter;
+import dev.baofeng.com.supermovie.adapter.OnlineXunleiAdapter;
 import dev.baofeng.com.supermovie.domain.DescBean;
 import dev.baofeng.com.supermovie.domain.PlayUrlBean;
 import dev.baofeng.com.supermovie.domain.online.OnlinePlayInfo;
@@ -51,10 +53,12 @@ import dev.baofeng.com.supermovie.presenter.GetRandomRecpresenter;
 import dev.baofeng.com.supermovie.presenter.iview.IRandom;
 import dev.baofeng.com.supermovie.view.GlideRoundTransform;
 import dev.baofeng.com.supermovie.view.GlobalMsg;
+import dev.baofeng.com.supermovie.view.HeadDescriptionDialog;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static dev.baofeng.com.supermovie.utils.ColorHelper.colorBurn;
 
+@EnableDragToClose()
 public class OnlineDetailPageActivity extends AppCompatActivity implements IRandom {
 
 
@@ -150,6 +154,7 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
                 if (scrollY >= 300) {
                     if (!toolbarIcon.isShown()) {
                         toolbarIcon.setVisibility(View.VISIBLE);
+                        appBar.setElevation(8);
                         Animation animation = AnimationUtils.loadAnimation(OnlineDetailPageActivity.this, R.anim.anim_in);
                         toolbarIcon.setAnimation(animation);
                     }
@@ -160,6 +165,7 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
                         Animation animation = AnimationUtils.loadAnimation(OnlineDetailPageActivity.this, R.anim.anim_out);
                         toolbarIcon.setAnimation(animation);
                         toolbarIcon.setVisibility(View.GONE);
+                        appBar.setElevation(0);
                     }
 
                 }
@@ -177,7 +183,7 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
             @Override
             public void onGenerated(Palette palette) {
                 //获取到充满活力的这种色调
-                Palette.Swatch vibrant = palette.getLightMutedSwatch();
+                Palette.Swatch vibrant = palette.getMutedSwatch();
                 //根据调色板Palette获取到图片中的颜色设置到toolbar和tab中背景，标题等，使整个UI界面颜色统一
                 if (root != null) {
                     if (vibrant != null) {
@@ -238,7 +244,7 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
             randomRecpresenter.getSeriRecommend(mvType);
         }
 
-        Glide.with(this).load(posterUrl).bitmapTransform(new RoundedCornersTransformation(this, 12, 0, RoundedCornersTransformation.CornerType.ALL)).crossFade(300).into(lineDetailPoster);
+        Glide.with(this).load(posterUrl).into(lineDetailPoster);
 
         initDescData();
         initPlayerData();
@@ -276,7 +282,7 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
 
         }
 
-        OnlinePlayWebAdapter adapter = new OnlinePlayWebAdapter(posterUrl, playUrlBean);
+        OnlineXunleiAdapter adapter = new OnlineXunleiAdapter(posterUrl, playUrlBean);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         playList.setLayoutManager(linearLayoutManager);
@@ -287,7 +293,6 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
         linearLayoutManager2.setOrientation(LinearLayoutManager.HORIZONTAL);
         playList2.setLayoutManager(linearLayoutManager2);
         playList2.setAdapter(adapter2);
-
 
         if (playM3u8List.size() == 0) {
             playList2.setVisibility(View.GONE);
@@ -311,11 +316,30 @@ public class OnlineDetailPageActivity extends AppCompatActivity implements IRand
                 builder.append(descBean.getHeader().get(i)).append("\n");
             }
         headDesc.setText(builder.toString());
+
+
+        headDesc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showBottomSheetDialog(builder.toString());
+            }
+        });
         if (TextUtils.isEmpty(descBean.getDesc())) {
             descContent.setVisibility(View.GONE);
         }
     }
 
+    private void showBottomSheetDialog(String string) {
+        // Set up BottomSheetDialog
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.head_content_layout, null);
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.getWindow().findViewById(R.id.design_bottom_sheet).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView headContent = view.findViewById(R.id.head_content);
+        headContent.setText(string);
+        bottomSheetDialog.show();
+    }
     @Override
     public void loadRandomData(OnlinePlayInfo info) {
         recAdapter = new OnlineCategoryAdapter(OnlineDetailPageActivity.this, info, mvType, isMovie);

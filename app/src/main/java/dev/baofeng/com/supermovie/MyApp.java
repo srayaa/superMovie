@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+import android.net.Uri;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -13,12 +15,15 @@ import com.huangyong.downloadlib.TaskLibHelper;
 import com.huangyong.downloadlib.model.Params;
 import com.tencent.smtt.sdk.QbSdk;
 import com.umeng.commonsdk.UMConfigure;
+import com.youngfeng.snake.Snake;
 import com.zchu.rxcache.RxCache;
 import com.zchu.rxcache.diskconverter.SerializableDiskConverter;
 
 import java.io.File;
 import java.io.InputStream;
 
+import byc.imagewatcher.ImageWatcher;
+import byc.imagewatcher.ImageWatcherHelper;
 import dev.baofeng.com.supermovie.http.ApiManager;
 import dev.baofeng.com.supermovie.https.OkHttpUrlLoader;
 import dev.baofeng.com.supermovie.utils.SPUtils;
@@ -32,6 +37,7 @@ public class MyApp extends Application{
     public static MyApp instance = null;
     public SPUtils spUtils;
     private static RxCache rxCache;
+    private ImageWatcherHelper iwHelper;
 
     @Override
     public void onCreate() {
@@ -42,6 +48,7 @@ public class MyApp extends Application{
 
         initDownloadLib();
 
+        Snake.init(this);
         //初始化缓存管理
         initCache();
         //让Glide能用HTTPS
@@ -69,6 +76,7 @@ public class MyApp extends Application{
 
 
     }
+
 
     private void initCache() {
         //支持Serializable、Json(GsonDiskConverter)

@@ -2,6 +2,7 @@
 # 🔥基于MVP+RxJava+Retrofit的电影资源聚合APP
 
 
+
 手机端更舒适地下载高清电影，热门电影，美剧，每日更新。（效果图更新不及时，以最新app实际效果为准）
 
 <table style="border-width: 0px ;">
@@ -32,13 +33,24 @@
 
 
 
-#### 扫码下载体验（release-2.1.0）
+#### 扫码下载体验（release-1.2.2）
 
   若扫不出，点击这里 https://fir.im/btmovie
 
 <div>
     <img src="https://github.com/hiliving/superMovie/blob/master/picture/apk_code.png" width="300" height="300" alt="仅供学习交流" align=center>
 </div>
+
+
+
+>2019/2/17更新：
+
+  - 1.更换在线片源，播放更流畅
+
+  - 2.UI交互优化，色调调整
+
+  - 3.在线资源支持迅雷下载
+
 
 >2019/2/3更新：
 

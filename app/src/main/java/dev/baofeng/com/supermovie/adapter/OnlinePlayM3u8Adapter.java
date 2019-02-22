@@ -6,11 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +22,7 @@ import com.bftv.myapplication.view.WebviewPlayer;
 import com.huangyong.downloadlib.utils.MD5Utils;
 import com.huangyong.playerlib.Params;
 import com.huangyong.playerlib.PlayerActivity;
+import com.tencent.smtt.sdk.TbsVideo;
 
 import dev.baofeng.com.supermovie.MyApp;
 import dev.baofeng.com.supermovie.R;
@@ -61,6 +65,7 @@ public class OnlinePlayM3u8Adapter extends RecyclerView.Adapter<OnlinePlayHolder
             public void onClick(View view) {
 
                 showListDialog(playList.getM3u8().get(position).getUrl());
+
             }
         });
     }
@@ -82,19 +87,15 @@ public class OnlinePlayM3u8Adapter extends RecyclerView.Adapter<OnlinePlayHolder
         final String listItems[] = new String[]{"应用内播放", "王卡专用免流播放(须选择QQ浏览器)"};
 
         AlertDialog.Builder listDialog = new AlertDialog.Builder(context);
-        listDialog.setTitle("选择播放路径");
+        listDialog.setTitle("选择播放方式");
         listDialog.setIcon(R.mipmap.icon);
 
         listDialog.setItems(listItems, (dialog, which) -> {
 
             if (which == 0) {
-                Intent intent = new Intent(context, PlayerActivity.class);
-                intent.putExtra(Params.URL_MD5_KEY, MD5Utils.stringToMD5(url));
-                intent.putExtra(Params.POST_IMG_KEY, poster);
-                intent.putExtra(Params.TASK_TITLE_KEY, title);
-                intent.putExtra(Params.MOVIE_PROGRESS, "0");
-                intent.putExtra(Params.PROXY_PALY_URL, url);
-                context.startActivity(intent);
+                Bundle bundle = new Bundle();
+                bundle.putInt("screenMode", 102);
+                TbsVideo.openVideo(context, url, bundle);
             }
             if (which == 1) {
                 openBrowser(context, url);
@@ -129,4 +130,6 @@ public class OnlinePlayM3u8Adapter extends RecyclerView.Adapter<OnlinePlayHolder
             Toast.makeText(context.getApplicationContext(), "请下载浏览器", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }
